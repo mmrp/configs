@@ -1,0 +1,7 @@
+1) init/init.vim - nvim configuration:  ~/.config/nvim/
+2) init/coc-settings.json: ~/.config/nvim
+3) clang
+   i) clang-format.py
+   ii) clang-format : rename to .clang-format and keep in top of source code
+
+4) bash/bashc : rename to ~/.bashrc

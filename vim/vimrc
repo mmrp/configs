@@ -1,0 +1,174 @@
+set tabstop=2
+set shiftwidth=2
+set expandtab 
+set mouse=a
+"set tabstop=4
+"set shiftwidth=4
+"set noexpandtab
+" by default, the indent is 2 spaces. 
+" set shiftwidth=2
+" set softtabstop=2
+" set tabstop=2
+"
+autocmd BufRead,BufNewFile *.c,*.h setlocal ts=4 sw=4 noexpandtab
+autocmd BufRead,BufNewFile *.py setlocal ts=4 sw=4 expandtab
+"
+" " for js/coffee/jade files, 4 spaces
+" autocmd Filetype javascript setlocal ts=4 sw=4 sts=0 expandtab
+" autocmd Filetype coffeescript setlocal ts=4 sw=4 sts=0 expandtab
+" autocmd Filetype jade setlocal ts=4 sw=4 sts=0 expandtab
+
+set nu
+source ~/.vim/cscope_maps.vim
+set hlsearch
+
+execute pathogen#infect()
+syntax on
+filetype plugin indent on
+
+
+
+let g:cpp_class_scope_highlight = 1
+
+"Highlighting of member variables is disabled by default. To enable set
+let g:cpp_member_variable_highlight = 1
+
+"Highlighting of class names in declarations is disabled by default. To enable set
+let g:cpp_class_decl_highlight = 1
+
+"There are two ways to highlight template functions. Either
+let g:cpp_experimental_simple_template_highlight = 1
+
+"which works in most cases, but can be a little slow on large files. Alternatively set
+let g:cpp_experimental_template_highlight = 1
+
+"Highlighting of library concepts is enabled by
+let g:cpp_concepts_highlight = 1
+
+"This will highlight the keywords concept and requires as well as all named requirements (like DefaultConstructible) in the standard library.
+let g:cpp_no_function_highlight = 1
+
+"let g:clang_library_path="/usr/lib/llvm-3.8/lib/libclang-3.8.0.so"
+
+"let g:ycm_global_ycm_extra_conf = "~/.vim/.ycm_extra_conf.py"
+
+
+"Plugin 'vim-colorschemes'
+noremap <F4> :set hlsearch! hlsearch?<CR>
+
+"colorscheme ron
+colorscheme molokai "base
+
+fun! TrimWhitespace()
+	let l:save = winsaveview()
+	keeppatterns %s/\s\+$//e
+	call winrestview(l:save)
+endfun
+
+command! TrimWhitespace call TrimWhitespace()
+
+noremap <Leader>w :call TrimWhitespace()<CR>
+
+
+function! ViewHtmlText(url)
+	if !empty(a:url)
+		new
+		setlocal buftype=nofile bufhidden=hide noswapfile
+		execute 'r !elinks ' . a:url . ' -dump -dump-width ' . winwidth(0)
+		1d
+	endif
+endfunction
+" Save and view text for current html file.
+" nnoremap <Leader>H :update<Bar>call
+" ViewHtmlText(expand('%:p'))<CR>
+" " View text for visually selected url.
+" vnoremap <Leader>h y:call ViewHtmlText(@@)<CR>
+" " View text for URL from clipboard.
+" " On Linux, use @* for current selection or @+ for
+" text in clipboard.
+noremap <Leader>h :call ViewHtmlText(@+)<CR>
+
+
+function! ConvertTabs()
+	set expandtab
+	%retab!
+endfunction
+
+noremap <Leader>t :call ConvertTabs()<CR>
+
+function! Cleanup()
+	call ConvertTabs()
+	call TrimWhitespace()
+endfunction
+
+noremap <Leader>c :call Cleanup()<CR>
+"set expandtab
+"
+"autocmd StdinReadPre * let s:std_in=1
+"autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+let g:NERDTreeDirArrowExpandable = '▸'
+let g:NERDTreeDirArrowCollapsible = '▾'
+map <C-n> :NERDTreeToggle<CR>
+let g:NERDTreeWinPos = "right"
+
+"open new file with nerdtree view
+"autocmd VimEnter * NERDTree
+autocmd BufWinEnter * NERDTreeMirror
+map <Leader>n <plug>NERDTreeTabsToggle<CR>
+
+set colorcolumn=111
+
+
+" Fix the difficult-to-read default setting for diff text highlighting.  The
+" " bang (!) is required since we are overwriting the DiffText setting. The
+" highlighting
+" " for "Todo" also looks nice (yellow) if you don't like the "MatchParen"
+" colors.
+highlight! link DiffText MatchParen
+
+
+fu! SaveSess()
+  execute 'mksession! ' . getcwd() . '/.session.vim'
+endfunction
+
+fu! RestoreSess()
+  if filereadable(getcwd() . '/.session.vim')
+    execute 'so ' . getcwd() . '/.session.vim'
+    if bufexists(1)
+      for l in range(1, bufnr('$'))
+        if bufwinnr(l) == -1
+          exec 'sbuffer ' . l
+        endif
+      endfor
+    endif
+  endif
+endfunction
+
+"autocmd VimLeave * call SaveSess()
+"autocmd VimEnter * nested call RestoreSess()
+"MatchParen
+"
+"
+nnoremap H gT
+nnoremap L gt
+
+function! Formatonsave()
+  let l:lines="all"
+  py3f ~/work/clang-format.py
+endfunction
+
+autocmd BufWritePre *.h,*.hpp,*.cc,*.cpp call Formatonsave()
+"let g:ycm_global_ycm_extra_conf = '~/.vim/bundle/YouCompleteMe/cpp/ycm/.ycm_extra_conf.py'
+let g:UltiSnipsExpandTrigger="<c-space>"
+let g:UltiSnipsJumpForwardTrigger="<c-j>"
+let g:UltiSnipsJumpBackwardTrigger="<c-k>"
+
+let mapleader=","
+nnoremap <leader>gl :YcmCompleter GoToDeclaration<CR>
+"let g:ycm_server_keep_logfiles = 1
+"let g:ycm_server_log_level = 'debug'
+
+
+" switch between buffers
+map <C-J> :bnext<CR>
+map <C-K> :bprev<CR>

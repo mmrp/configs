@@ -1,0 +1,73 @@
+{
+//  "languageserver": {
+//    "clangd": {
+//      "command": "clangd",
+//      "rootPatterns": ["compile_flags.txt", "compile_commands.json"],
+//      "filetypes": ["c", "cc", "cpp", "c++", "objc", "objcpp"],
+//    }
+//  },
+
+
+    "coc.preferences.semanticTokensHighlights": false,
+    "coc.preferences.watchmanPath": "watchman",
+    "coc.preferences.formatOnType": false,
+    "coc.preferences.floatActions": true,
+    "dialog.pickerButtonShortcut": true,
+    "dialog.pickerButtons": true,
+    "diagnostic.virtualTextCurrentLineOnly": false,
+    "diagnostic.virtualTextPrefix": "  ",
+    "diagnostic.errorSign": " ",
+    "diagnostic.warningSign": "",
+    "diagnostic.infoSign": "",
+    "diagnostic.hintSign": " ",
+    "diagnostic.separateRelatedInformationAsDiagnostics": true,
+    "diagnostic.showUnused": true,
+    "diagnostic.enableHighlightLineNumber": true,
+    "diagnostic.enableSign": true,
+    "diagnostic.virtualText": true,
+    "codeLens.enable": true,
+    "coc.source.file.enable": true,
+    "clangd.showDBChangedNotification": true,
+    "coc.preferences.colorSupport": true,
+    "coc.preferences.enableMarkdown": true,
+
+    "pairs.disableLanguages": ["cpp", "sh"],
+
+    "clangd.enabled": true,
+    "clangd.semanticHighlighting": true,
+    "clangd.fallbackFlags":  ["-std=c++17"],
+    "clangd.arguments": [
+      "-j=4",
+      "--all-scopes-completion=1",
+      "--background-index=1",
+      "--limit-results=128",
+      "--log=verbose",
+      "--pch-storage=disk",
+      "--header-insertion=never",
+    ],
+    "clangd.path": "~/.config/coc/extensions/coc-clangd-data/install/13.0.0/clangd_13.0.0/bin/clangd"
+//    "languageserver": {
+//        "ccls": {
+//            "command": "ccls",
+//            "filetypes": [
+//                "c",
+//                "cpp",
+//                "objc",
+//                "objcpp"
+//            ],
+//            "rootPatterns": [
+//                ".ccls",
+//                "compile_commands.json",
+//                ".vim/",
+//                ".git/",
+//                ".hg/"
+//            ],
+//            "initializationOptions": {
+//                "cache": {
+//                    "directory": "/tmp/ccls"
+//                },
+//                "highlight": { "lsRanges" : true }
+//            }
+//        }
+//    }
+}
