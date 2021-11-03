@@ -5,3 +5,5 @@
    ii) clang-format : rename to .clang-format and keep in top of source code
 
 4) bash/bashc : rename to ~/.bashrc
+
+5) tmux/tmux.conf: rename to ~/.tmux.conf
