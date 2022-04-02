@@ -1,0 +1,16 @@
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t tmpfs -o size=50M nodev /tmp
+mkdir -p /tmp/store
+
+echo "Boot took $(cut -d' ' -f1 /proc/uptime) seconds"
+#fsck /dev/vda
+#mount -o remount,rw /
+
+ifconfig eth0 10.0.2.15
+
+#tcpsvd -vE 0.0.0.0 21 ftpd /tmp
+
+#see: host networking in the qemu command line
+httpd -p 0.0.0.0:4000  -h /tmp/store
+

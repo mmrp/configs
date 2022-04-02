@@ -123,6 +123,9 @@ set expandtab
 
 "colorscheme gruvbox
 
+" Better display for messages
+set cmdheight=2
+
 " sync open file with NERDTree
 " " Check if NERDTree is open or active
 function! IsNERDTreeOpen()

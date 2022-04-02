@@ -1,0 +1,156 @@
+Note: See Auto [probably this is all you need]
+
+Busybox:
+--------
+1) git clone https://github.com/mirror/busybox
+2) cd busybox 
+3) copy the busy.config from configs as .config
+4) make oldconfig
+5) make menuconfig #search for PREFIX and change the installation dir
+   e.g: $HOME/qemu/busybox
+6) save the configuration
+7) mkdir -p $HOME/qemu/busybox
+8) make install
+
+
+Linux:
+------
+1) https://github.com/torvalds/linux
+2) cd linux
+3) copy the linux.config from configs as .config
+4) make oldconfig 
+5) make bzImage -j$(nproc)
+
+
+Disk-image:
+-----------
+1) dd if=/dev/zero of=rootfs.ext4 bs=1M count=50
+2) mkfs.ext4 rootfs.ext4 # press y for all
+3) create temporary mount dir e.g: mkdir mount_point
+4) become root
+5) run the script ./setup_disk.sh
+   e.g: ./setup_disk.sh rootfs.ext4 mount_point
+6) rsync -av  $HOME/qemu/busybox/  mount_point
+7) cd mount_point && mkdir -p proc sys  etc/init.d
+8) cp ../configs/inittab etc
+9) cp ../configs/rcs etc/init.d
+10) exit
+
+Qemu-args:
+----------
+1) create a link to bzImage from linux-build-directory/arch/x86/boot/bzImage to current directory
+   e.g: ln -s ${linux_build_directory}/arch/x86/boot/bzImage 
+
+2) qemu-system-x86_64 -kernel bzImage -drive file=rootfs.ext2,if=virtio -nographic -append console=ttyS0 root=/dev/vda ro -nic user,model=virtio-net-pci
+
+
+Auto:
+-----
+1) script setup.sh has been provided with all the above
+2) ./setup.sh help # will show the all the required steps
+  - build busybox
+  - build linux
+  - create disk-image
+  - boot with qemu
+e.g: To build and boot with qemu
+  
+
+#############################################
+# build linux
+./setup.sh build_n_install_linux /home/zeus/work/git/linux /tmp/qemu configs/linux.config  linux
+
+# build busybox
+./setup.sh build_n_install_busybox /home/zeus/work/git/busybox /tmp/qemu
+
+# create disk
+sudo ./setup.sh create_disk_image /tmp/qemu/install/busybox/ 50 /tmp/qemu/ rootfs.ext4
+
+# start qemu
+sudo ./setup.sh run_qemu /tmp/qemu/install/linux/bzImage /tmp/qemu/rootfs.ext4
+
+
+
+#############################################
+  
+
+3) copying files
+ 1) qemu starts a user mode network with host ip as 10.0.2.2 and guest as 10.0.2.15
+   traffic flow
+   ------------
+   1) host [8000] -> guest[4000]
+   2) guest[8000] -> host[4000]
+
+ 2) host/qemu listens on 10.0.2.2:8000 for requests 
+
+ 3) guest listens on 10.0.2.15:4000 for requests
+
+ 4) a server is already started on guest for 3) and files are served from /tmp/store
+
+ copy from guest to host
+ -----------------------
+ wget 127.0.0.1:8000/file # this file should exist on /tmp/store in the guest
+ 
+ copy from host to guest
+ -----------------------
+ 1) start a http server on host [python3 -m http.server 4000]
+ 2) goto guest and run 
+    $ get_file file_name  # this file_name should exist in 1)
+
+
+setup_disk.sh:
+-------------
+ 1) to see the contents of the disk run the script and follow the instructions
+ 2) on success it will mount the disk on the given mount point
+ 3) once done; exit the shell
+
+
+
+Programming:
+
+kernel_module:
+--------------
+first.c:
+--------
+  #include <linux/kernel.h>                   
+  #include <linux/module.h>                   
+                                              
+  int startup(void) {                         
+    printk("Hello man\n");                    
+    return 0;                                 
+  }                                           
+                                              
+  void cleanup(void) { printk("Bye man\n"); } 
+                                              
+  module_init(startup);                       
+  module_exit(cleanup);                       
+                                              
+  MODULE_LICENSE("gpl");                      
+
+
+
+Makefile:
+---------
+  LINUX_BUILD_DIR=/tmp/qemu-1/build/linux           
+                                                    
+  obj-m := first.o                                  
+                                                    
+  all:                                              
+          make -C ${LINUX_BUILD_DIR} M=`pwd` modules
+
+
+
+log[vm-log]:
+-----------
+ /tmp/store # get_file  first.ko
+Connecting to 10.0.2.2:4000 (10.0.2.2:4000)
+saving to 'first.ko'
+first.ko             100% |********************************| 39680  0:00:00 ETA
+'first.ko' saved
+/tmp/store # insmod first.ko
+[  384.999487] first: loading out-of-tree module taints kernel.
+[  384.999815] first: module license 'gpl' taints kernel.
+[  384.999997] Disabling lock debugging due to kernel taint
+[  385.004102] Hello man
+/tmp/store # rmmod first.ko 
+[  388.470269] Bye man
+
